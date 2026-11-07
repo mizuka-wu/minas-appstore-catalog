@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "minas-appstore catalog v1",
+  "type": "object",
+  "required": ["schemaVersion", "apps"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "apps": { "type": "array", "items": { "$ref": "#/$defs/app" } }
+  },
+  "$defs": {
+    "app": {
+      "type": "object",
+      "required": ["id", "name", "version", "registerId", "docker", "health"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]{0,31}$", "description": "应用中心 key：小写字母数字下划线，禁连字符" },
+        "name": { "type": "string" },
+        "desc": { "type": "string" },
+        "version": { "type": "string" },
+        "registerId": { "type": "integer", "minimum": 98, "description": "INFO.id，各商品互不重复" },
+        "iconFile": { "type": "string", "description": "assets/icons/ 下 300x300 PNG" },
+        "docker": {
+          "type": "object",
+          "required": ["image"],
+          "properties": {
+            "image": { "type": "string" },
+            "containerName": { "type": "string" },
+            "command": { "type": "array", "items": { "type": "string" }, "description": "容器 command/args；token 类机密用 {{ENV:NAME}} 从 store 进程环境注入" },
+            "ports": { "type": "array", "items": { "type": "string", "pattern": "^(([0-9]{1,3}\\.){3}[0-9]{1,3}:)?[0-9]+(:[0-9]+)?$" }, "description": "绑 LAN（-p host:container），WebView 直连必需；辅助端口可绑 127.0.0.1:hp:cp；network=host 时裸端口仅作展示元数据" },
+            "network": { "type": "string", "enum": ["host", "bridge", ""], "description": "host 供 HomeKit/mDNS 类应用；此时不发布端口" },
+            "volumes": { "type": "array", "items": { "type": "string" } },
+            "env": { "type": "object", "additionalProperties": { "type": "string" } },
+            "memory": { "type": "string", "description": "无 swap 机器必给，保险丝" },
+            "cpus": { "type": "string" }
+          }
+        },
+        "health": {
+          "type": "object",
+          "required": ["url"],
+          "properties": {
+            "url": { "type": "string", "description": "健康检查 URL（Java 应用冷启动 30-60s，timeoutSec 给足）" },
+            "timeoutSec": { "type": "integer", "default": 90 }
+          }
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "label"],
+            "properties": {
+              "name": { "type": "string", "pattern": "^[A-Z][A-Za-z0-9_]*$" },
+              "label": { "type": "string" },
+              "type": { "enum": ["text", "password"], "default": "text" },
+              "default": { "type": "string" },
+              "required": { "type": "boolean", "default": false }
+            }
+          },
+          "description": "安装表单；值经 {{ENV:NAME}} 引用，日志自动打码，API 永不回显。解析顺序：表单 > 进程环境 > default"
+        },
+        "beta": { "type": "boolean", "default": false, "description": "配方未在 MINAS 真机验证，商店 UI 挂 β 牌" },
+        "postShell": { "type": "string", "description": "可选后置钩子；模板变量 {{DATA}} {{POOL}} {{NAS_IP}} {{UID}} {{DOCKER}} {{HOST_PORT}}；env 附 NAS_IP/NAS_UID/HOST_PORT" }
+      }
+    }
+  }
+}
