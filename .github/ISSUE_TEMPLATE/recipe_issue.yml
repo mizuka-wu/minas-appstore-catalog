@@ -1,0 +1,60 @@
+name: 📦 应用配方问题 / App recipe issue
+description: 某款应用装不上、打开白屏/404、想要新应用、请求下架
+labels: [recipe]
+body:
+  - type: markdown
+    value: |
+      ⚠️ **脱敏**：贴日志前抹掉真实 NAS IP、米家 UID、密码、token（统一写 `<NAS_IP>` `<UID>`）。
+      商店本体问题（商店 UI 打不开、所有应用集体失联）请去[引擎仓](https://github.com/mizuka-wu/minas-appstore/issues)。
+  - type: input
+    id: app-id
+    attributes:
+      label: 应用 id（catalog.json 里的 id，商店卡片悬停/商店 UI 可见）
+      placeholder: homeassistant
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: 问题类型
+      options:
+        - 安装失败（拉镜像/健康检查超时等）
+        - 装上了但打不开（白屏/404/跳转异常）
+        - 打开模式不对（想从反代换 redirect 或反之）
+        - 图标问题
+        - 想要新应用上架
+        - 请求下架/更新配方
+        - 其他
+    validations:
+      required: true
+  - type: input
+    id: task-id
+    attributes:
+      label: 商店任务 id（安装/更新失败时提供，商店 UI 任务日志页可见）
+      placeholder: 20261108-113150-update-homeassistant，没有就写无
+    validations:
+      required: false
+  - type: textarea
+    id: detail
+    attributes:
+      label: 详情 + 任务日志尾部
+      description: |
+        ```
+        tail -30 /data/apps/store/tasks/<任务id>/*.log
+        curl -s http://<NAS_IP>:8400/api/apps | head -c 500
+        ```
+        打不开类问题请注明：直连容器端口（如 `:<8123`）是否正常——直连好、卡片坏 = 打开模式问题，直连也坏 = 应用/镜像问题。
+      render: shell
+    validations:
+      required: true
+  - type: checkboxes
+    id: known
+    attributes:
+      label: 已知机制确认（详见引擎仓 README 原理篇）
+      options:
+        - label: 米家 App 杀后台重进过（图标/卡片缓存）
+          required: false
+        - label: desc 里没写 PC 客户端会白屏（redirect 模式是设计如此，电脑请用浏览器直连）
+          required: false
+        - label: bridge 应用出网问题先查过 MASQUERADE（那是引擎/出网的事，不是配方）
+          required: false

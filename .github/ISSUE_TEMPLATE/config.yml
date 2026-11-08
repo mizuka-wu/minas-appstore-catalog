@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🛠 商店本体问题（装任何应用都失败、商店 UI 挂了、注册/自愈异常）
+    url: https://github.com/mizuka-wu/minas-appstore/issues
+    about: 引擎问题报那边；本仓只管 catalog 条目与图标
+  - name: 📘 怎么加自己的应用/自建货架
+    url: https://github.com/mizuka-wu/minas-appstore/blob/main/docs/add-your-app.md
+    about: 决策树 + 真实配方对照 + 验收清单，提 issue 前先读一遍能省一半来回
